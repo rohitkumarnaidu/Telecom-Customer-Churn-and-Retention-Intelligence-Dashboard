@@ -1,0 +1,130 @@
+// =============================================================================
+// Power BI DAX Measures Library — Telecom Churn & Retention Intelligence
+// =============================================================================
+// Organized into dedicated Measure Folders in Power BI Desktop Model View
+// =============================================================================
+
+// =============================================================================
+// Folder: 01 - Core Volume & Counts
+// =============================================================================
+
+Total Customers = 
+COUNTROWS('Fact_CustomerChurn')
+
+Churned Customers = 
+CALCULATE(
+    COUNTROWS('Fact_CustomerChurn'),
+    'Fact_CustomerChurn'[churn_flag] = 1
+)
+
+Retained Customers = 
+CALCULATE(
+    COUNTROWS('Fact_CustomerChurn'),
+    'Fact_CustomerChurn'[churn_flag] = 0
+)
+
+Churn Rate = 
+DIVIDE([Churned Customers], [Total Customers], 0)
+
+Retention Rate = 
+DIVIDE([Retained Customers], [Total Customers], 0)
+
+
+// =============================================================================
+// Folder: 02 - Financial & Revenue Metrics
+// =============================================================================
+
+Total MRR = 
+SUM('Fact_CustomerChurn'[monthly_charges])
+
+Churned MRR = 
+CALCULATE(
+    SUM('Fact_CustomerChurn'[monthly_charges]),
+    'Fact_CustomerChurn'[churn_flag] = 1
+)
+
+Retained MRR = 
+CALCULATE(
+    SUM('Fact_CustomerChurn'[monthly_charges]),
+    'Fact_CustomerChurn'[churn_flag] = 0
+)
+
+MRR Churn Rate % = 
+DIVIDE([Churned MRR], [Total MRR], 0)
+
+Annualized Revenue Lost = 
+[Churned MRR] * 12
+
+Total Customer Lifetime Value = 
+SUM('Fact_CustomerChurn'[total_charges])
+
+ARPU (Average Revenue Per User) = 
+DIVIDE([Total MRR], [Total Customers], 0)
+
+ARPU Churned = 
+DIVIDE([Churned MRR], [Churned Customers], 0)
+
+ARPU Retained = 
+DIVIDE([Retained MRR], [Retained Customers], 0)
+
+
+// =============================================================================
+// Folder: 03 - Risk & Segmentation Metrics
+// =============================================================================
+
+Average Risk Score = 
+AVERAGE('Fact_CustomerChurn'[risk_score])
+
+High Risk Customers = 
+CALCULATE(
+    COUNTROWS('Fact_CustomerChurn'),
+    'Fact_CustomerChurn'[risk_tier] = "High Risk"
+)
+
+High Risk Customer % = 
+DIVIDE([High Risk Customers], [Total Customers], 0)
+
+VIP Revenue at Immediate Risk = 
+CALCULATE(
+    SUM('Fact_CustomerChurn'[monthly_charges]),
+    'Fact_CustomerChurn'[retention_priority] = "1. Critical Save (VIP Risk)",
+    'Fact_CustomerChurn'[churn_flag] = 0
+)
+
+VIP Customers at Immediate Risk = 
+CALCULATE(
+    COUNTROWS('Fact_CustomerChurn'),
+    'Fact_CustomerChurn'[retention_priority] = "1. Critical Save (VIP Risk)",
+    'Fact_CustomerChurn'[churn_flag] = 0
+)
+
+
+// =============================================================================
+// Folder: 04 - Retention ROI Simulation Measures
+// =============================================================================
+
+Simulated Churn Reduction % = 
+0.05 -- Baseline 5% reduction parameter (or wire to What-If parameter)
+
+Estimated Annual Revenue Saved = 
+[Annualized Revenue Lost] * [Simulated Churn Reduction %]
+
+Estimated Retained Accounts = 
+ROUND([Churned Customers] * [Simulated Churn Reduction %], 0)
+
+
+// =============================================================================
+// Folder: 05 - Dynamic Titles & Formatting Cards
+// =============================================================================
+
+Card Total MRR Formatted = 
+FORMAT([Total MRR], "$#,##0")
+
+Card Churned MRR Formatted = 
+FORMAT([Churned MRR], "$#,##0")
+
+Card Churn Rate Formatted = 
+FORMAT([Churn Rate], "0.0%")
+
+Dynamic Dashboard Subtitle = 
+"Portfolio Size: " & FORMAT([Total Customers], "#,##0") & " Customers | Monthly Revenue: " & FORMAT([Total MRR], "$#,##0")
