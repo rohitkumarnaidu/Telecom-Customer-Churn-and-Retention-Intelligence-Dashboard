@@ -2,7 +2,7 @@
 
 > **Purpose:** A complete learning companion for this project.
 > Every concept is explained with **What · Why · How · Real World · How to Use**.
-> Updated after every phase as the project progresses.
+> Updated live as the project progresses — read alongside the actual build.
 
 ---
 
@@ -24,7 +24,10 @@
 | 12 | [Phase 9–10 — Power Query and Power BI Model](#phase-9-10) | ✅ Done |
 | 13 | [Phase 11 — DAX Measures](#phase-11) | ✅ Done |
 | 14 | [Phase 12–17 — Dashboard Pages](#phase-12-17) | ✅ Done |
-| 15 | [Glossary](#glossary) | 🔜 Coming Soon |
+| 15 | [How to Execute the Project](#how-to-execute) | ✅ Done |
+| 16 | [Project Audit Status](#audit) | ✅ Done |
+| 17 | [Interview Prep Cheat Sheet](#interview-prep) | ✅ Done |
+| 18 | [Glossary](#glossary) | ✅ Done |
 
 ---
 
@@ -1247,26 +1250,277 @@ flowchart LR
 
 ---
 
-<h2 id="glossary">📖 15. Glossary</h2>
+<h2 id="how-to-execute">🚀 15. How to Execute the Project</h2>
 
-| Term | Meaning |
-|---|---|
-| **Churn** | Customer who cancelled their subscription |
-| **Churn Rate** | (Churned / Total) × 100 |
-| **Retention Rate** | (Retained / Total) × 100 |
-| **Data Profiling** | Inspecting raw data before any transformation |
-| **Feature Engineering** | Creating new calculated columns from existing data |
-| **Star Schema** | Database design with one fact table + multiple dimension tables |
-| **DAX** | Data Analysis Expressions — Power BI formula language |
-| **KPI** | Key Performance Indicator — a measurable business metric |
-| **EDA** | Exploratory Data Analysis — visual and statistical exploration |
-| **CTE** | Common Table Expression — named temporary result in SQL |
-| **Window Function** | SQL function calculating across a related set of rows |
-| **Virtual Environment** | Isolated Python setup for one project |
-| **Reproducibility** | Ability to recreate results from scratch |
-| **BRD** | Business Requirements Document |
-| **BI** | Business Intelligence — turning data into business insights |
+### Step 1 — Setup Environment
+```powershell
+# Clone repo
+git clone https://github.com/rohitkumarnaidu/Telecom-Customer-Churn-and-Retention-Intelligence-Dashboard.git
+
+# Create & activate virtual environment
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Step 2 — Run Notebooks (Sequentially in Jupyter)
+```powershell
+.venv\Scripts\jupyter.exe notebook
+```
+
+| Order | Notebook | Produces | Time Estimate |
+|---|---|---|---|
+| 1️⃣ | `01_data_understanding.ipynb` | EDA insights, audit summary | ~5 min |
+| 2️⃣ | `02_data_cleaning.ipynb` | `data/staging/telco_staging.csv` | ~2 min |
+| 3️⃣ | `03_feature_engineering.ipynb` | `data/processed/telco_cleaned.csv` | ~2 min |
+| 4️⃣ | `04_segmentation.ipynb` | `data/processed/telco_segmented.csv` | ~2 min |
+| 5️⃣ | `05_eda_churn_analysis.ipynb` | Charts in `assets/` folder | ~5 min |
+
+### Step 3 — Build the SQL Database
+```powershell
+# Run from project root after all notebooks have been executed
+python sql/load_database.py
+# → Creates: database/telecom_churn.db
+```
+
+### Step 4 — Power BI
+1. Open **Power BI Desktop**
+2. **Get Data → Text/CSV** → select `data/processed/telco_segmented.csv`
+3. Open **Power Query Editor → Advanced Editor** → paste each table from `powerbi/power_query_etl.m`
+4. Build star schema relationships in **Model View**
+5. Add DAX measures from `powerbi/dax_measures.dax` into a dedicated **Measures Table**
+6. Build dashboard pages following `powerbi/dashboard_specifications.md`
+
+> ⚠️ **Important:** Always run the notebooks **in order** (01 → 02 → 03 → 04 → 05) because each notebook depends on the output of the previous one.
 
 ---
 
-*This file is updated after every phase. Read it alongside the project build.*
+<h2 id="audit">🔍 16. Project Audit Status</h2>
+
+### File Inventory
+
+```mermaid
+flowchart TD
+    subgraph Notebooks ["📓 Notebooks (run in order)"]
+        N1["01_data_understanding.ipynb ✅"]
+        N2["02_data_cleaning.ipynb ✅"]
+        N3["03_feature_engineering.ipynb ✅"]
+        N4["04_segmentation.ipynb ✅"]
+        N5["05_eda_churn_analysis.ipynb ✅"]
+    end
+
+    subgraph Data ["💾 Data Files"]
+        D1["data/raw/ ✅ (CSV present)"]
+        D2["data/staging/ ⏳ (run notebook 02)"]
+        D3["data/processed/ ⏳ (run notebooks 03-04)"]
+    end
+
+    subgraph SQL ["🗄️ SQL Layer"]
+        S1["schema.sql ✅"]
+        S2["views.sql ✅"]
+        S3["queries.sql ✅"]
+        S4["load_database.py ✅"]
+        S5["database/telecom_churn.db ⏳ (run load_database.py)"]
+    end
+
+    subgraph BI ["📊 Power BI Assets"]
+        B1["power_query_etl.m ✅"]
+        B2["dax_measures.dax ✅"]
+        B3["dashboard_specifications.md ✅"]
+        B4[".pbix file 🔄 (build in Power BI Desktop)"]
+    end
+
+    subgraph Assets ["🖼️ Chart Assets"]
+        A1["assets/ ⏳ (run notebook 05)"]
+    end
+```
+
+### What Needs User Action
+
+| Step | Action Required | Produces |
+|---|---|---|
+| ⏳ **Run Notebooks** | Open Jupyter → Run notebooks 01–05 in order | `staging/`, `processed/`, `assets/` folders populated |
+| ⏳ **Build Database** | `python sql/load_database.py` | `database/telecom_churn.db` |
+| 🔄 **Build Dashboard** | Follow `powerbi/dashboard_specifications.md` in Power BI Desktop | `.pbix` file |
+
+> ✅ All code, specs, schemas, and documentation are **already created and pushed to GitHub**.
+> You just need to **run** the notebooks and build the Power BI file!
+
+---
+
+<h2 id="interview-prep">🎤 17. Interview Prep Cheat Sheet</h2>
+
+> Use this when someone asks you about this project in an interview or portfolio review.
+
+### "Tell me about this project."
+> *"I built an end-to-end telecom customer churn analytics project. Starting from raw IBM Telco data with 7,043 customers, I built a Python data pipeline for cleaning and feature engineering, designed a 100-point explainable churn risk scoring algorithm, created a SQLite analytical database with views and window function queries, and designed a 6-page Power BI dashboard. The key finding was that month-to-month contract customers churn at 42.7%, and churned customers actually spend $13 more per month on average — meaning we're losing our premium customers first."*
+
+### "What was the biggest data quality issue?"
+> *"The TotalCharges column was stored as an object/string type because 11 rows had blank strings instead of numbers. These corresponded to customers with tenure = 0 — brand-new accounts that hadn't completed their first billing cycle. I converted the column to float using pd.to_numeric with errors='coerce', which turned the blanks into NaN, then imputed them with 0.0 for those specific tenure = 0 rows."*
+
+### "Why did you use rule-based scoring instead of machine learning?"
+> *"Rule-based scoring gives executive stakeholders full transparency. Instead of a black-box model saying 'this customer is high risk', I can say 'this customer scored 75 because they're on a month-to-month contract (+30 pts), in their first 6 months (+25 pts), on Fiber Optic (+15 pts), and pay by electronic check (+5 pts)'. This translates directly into DAX calculated columns in Power BI without needing a Python API."*
+
+### "What were the top churn drivers?"
+> *"Five main drivers: 1) Month-to-month contracts (42.7% churn) — no commitment barrier. 2) First-year customers (47.4% churn) — onboarding friction. 3) Electronic check payment (45.3%) — monthly manual friction forces price re-evaluation. 4) No tech support on fiber optic accounts — paying premium prices without premium support. 5) Fiber optic customers in general (41.9%) — high price point attracts competitor poaching."*
+
+### "How would you improve this project?"
+> *"Three ways: First, add a machine learning layer — Logistic Regression or XGBoost — to compare against the rule-based score and quantify the accuracy gain. Second, implement time-series analysis if we had monthly snapshots to track cohort churn trends over time. Third, build a live data pipeline — connecting the Python pipeline to an API or scheduled job that refreshes the Power BI dashboard daily."*
+
+---
+
+<h2 id="glossary">📖 18. Glossary — Complete Term Reference</h2>
+
+### Business & Analytics Terms
+
+| Term | Full Form | Meaning |
+|---|---|---|
+| **Churn** | — | Customer who cancelled their subscription or stopped using the service |
+| **Churn Rate** | — | `(Churned Customers / Total Customers) × 100` — percentage leaving in a period |
+| **Retention Rate** | — | `(Retained Customers / Total Customers) × 100` — inverse of churn rate |
+| **MRR** | Monthly Recurring Revenue | Total predictable revenue collected every month from active subscriptions |
+| **ARPU** | Average Revenue Per User | `Total MRR / Total Active Customers` — avg monthly spend per customer |
+| **CLV / LTV** | Customer Lifetime Value | Total revenue expected from a customer over their entire relationship |
+| **KPI** | Key Performance Indicator | A measurable business metric tied to a strategic goal |
+| **BRD** | Business Requirements Document | Formal document defining stakeholder goals, KPIs, and success criteria |
+| **ROI** | Return on Investment | `(Revenue Gained - Cost) / Cost × 100` — profit from an action |
+| **BI** | Business Intelligence | The practice of turning raw data into business decisions via reports and dashboards |
+| **EDA** | Exploratory Data Analysis | Statistical and visual exploration of a dataset before modeling |
+| **Cohort** | — | A group of customers sharing a common characteristic, e.g., joined in same month |
+| **Attrition** | — | Synonym for churn — gradual loss of customers over time |
+| **Churn Risk Score** | — | A numerical score (0–100) indicating how likely a customer is to churn |
+| **Retention Playbook** | — | A set of defined actions mapped to each customer risk segment |
+
+---
+
+### Data & Python Terms
+
+| Term | Meaning |
+|---|---|
+| **DataFrame** | Pandas tabular data structure — like a spreadsheet in Python memory |
+| **dtype** | Data type of a column — e.g., `int64`, `float64`, `object` (string) |
+| **NaN** | Not a Number — Python/Pandas representation of a missing value |
+| **Coercion** | Forcing a column to change type; `errors='coerce'` turns invalid values to `NaN` |
+| **Imputation** | Filling missing values with a calculated or assumed value (e.g., 0 for new customers) |
+| **snake_case** | Naming convention using underscores: `customer_id`, `monthly_charges` |
+| **Feature Engineering** | Creating new columns that capture business meaning from existing raw columns |
+| **Cardinality** | The number of unique values in a column — high cardinality = many unique values |
+| **Outlier** | Data point that lies far outside the normal range of a distribution |
+| **Normalization** | Scaling values to a 0–1 range so no single feature dominates |
+| **Binary Flag** | A column with values only 0 or 1 (False/True) |
+| **pd.cut()** | Pandas function to bin a continuous column into discrete labeled intervals |
+| **np.where()** | NumPy function for vectorized conditional assignment — fast `if-else` for columns |
+| **Virtual Environment** | Isolated Python installation for one project — prevents package conflicts |
+| **Reproducibility** | Ability to re-run analysis from scratch and get identical results |
+
+---
+
+### SQL Terms
+
+| Term | Meaning |
+|---|---|
+| **DDL** | Data Definition Language — SQL commands that create/modify database structure (`CREATE`, `DROP`, `ALTER`) |
+| **DML** | Data Manipulation Language — SQL commands that modify data (`INSERT`, `UPDATE`, `DELETE`) |
+| **DQL** | Data Query Language — `SELECT` statements that retrieve data |
+| **CTE** | Common Table Expression — a named temporary result set defined with `WITH ... AS (...)` |
+| **Window Function** | SQL function applied over a sliding window of related rows — `RANK()`, `NTILE()`, `SUM() OVER()` |
+| **NTILE(n)** | Divides rows into n equal-sized buckets — used here to create risk deciles (NTILE(10)) |
+| **View** | A saved SQL SELECT query that behaves like a virtual table |
+| **Index** | A database optimization structure that speeds up WHERE/JOIN lookups on a column |
+| **Primary Key** | A column (or set of columns) that uniquely identifies every row in a table |
+| **Foreign Key** | A column that references the primary key of another table — links tables together |
+| **Constraint** | A rule enforced at the database level — e.g., `NOT NULL`, `CHECK (value > 0)` |
+| **Star Schema** | Data warehouse design: one central fact table surrounded by dimension tables |
+| **Fact Table** | Contains measurable, quantitative data — e.g., `monthly_charges`, `churn_flag`, `risk_score` |
+| **Dimension Table** | Contains descriptive attributes used for grouping — e.g., `Dim_Contract`, `Dim_Customer` |
+
+---
+
+### Power BI / DAX Terms
+
+| Term | Meaning |
+|---|---|
+| **Power Query (M)** | ETL language inside Power BI for loading, cleaning, and shaping data before it enters the model |
+| **DAX** | Data Analysis Expressions — formula language for calculated columns, measures, and tables in Power BI |
+| **Measure** | A DAX formula evaluated dynamically based on current filter context — e.g., `[Churn Rate]` |
+| **Calculated Column** | A DAX column computed row-by-row and stored in the model — e.g., `risk_tier` |
+| **Filter Context** | The set of active filters applied in a visual — determines what rows a DAX measure sees |
+| **CALCULATE()** | The most powerful DAX function — evaluates an expression while modifying the filter context |
+| **DIVIDE()** | Safe DAX division — returns 0 (or specified alternate) instead of error when dividing by zero |
+| **VertiPaq** | Power BI's in-memory columnar compression engine — why `.pbix` files are fast |
+| **Slicer** | A filter visual in Power BI that lets users interactively filter the entire dashboard page |
+| **Drillthrough** | Power BI feature allowing users to right-click a data point and navigate to a detail page |
+| **What-If Parameter** | A dynamic numeric input slider in Power BI — used for our ROI simulation page |
+| **Decomposition Tree** | Power BI AI visual that breaks down a measure into its contributing dimensions |
+
+---
+
+### Medallion Architecture
+
+| Layer | Colour | Folder | Description |
+|---|---|---|---|
+| **Bronze** | 🥉 | `data/raw/` | Exact copy of source — never modified |
+| **Silver** | 🥈 | `data/staging/` | Cleaned, typed, validated, deduplicated |
+| **Gold** | 🥇 | `data/processed/` | Enriched with features, segments, and risk scores — analytics-ready |
+
+---
+
+<h2 id="project-file-map">🗺️ Complete Project File Map</h2>
+
+```
+Telecom/
+├── README.md                               ← GitHub landing page
+├── requirements.txt                        ← pip install -r requirements.txt
+├── .gitignore                              ← Git excluded files
+├── .venv/                                  ← Virtual environment (not committed)
+│
+├── data/
+│   ├── raw/Telco-Customer-Churn.csv        ← Sacred original — never modify
+│   ├── staging/telco_staging.csv           ← After notebook 02
+│   └── processed/
+│       ├── telco_cleaned.csv               ← After notebook 03
+│       └── telco_segmented.csv            ← After notebook 04 (main BI source)
+│
+├── notebooks/
+│   ├── 01_data_understanding.ipynb        ← Phase 3 (15 sections, 200+ lines)
+│   ├── 02_data_cleaning.ipynb             ← Phase 4 (8 steps)
+│   ├── 03_feature_engineering.ipynb       ← Phase 5 (11 new features)
+│   ├── 04_segmentation.ipynb              ← Phase 6 (100-pt risk score)
+│   └── 05_eda_churn_analysis.ipynb        ← Phase 7 (5 charts + exec summary)
+│
+├── sql/
+│   ├── schema.sql                         ← CREATE TABLE + indexes
+│   ├── views.sql                          ← 5 business views
+│   ├── queries.sql                        ← Advanced analytical queries
+│   └── load_database.py                  ← Build telecom_churn.db
+│
+├── database/
+│   └── telecom_churn.db                   ← SQLite DB (after load_database.py)
+│
+├── powerbi/
+│   ├── power_query_etl.m                 ← Star schema ETL transforms
+│   ├── dax_measures.dax                  ← 20+ DAX measures (5 folders)
+│   └── dashboard_specifications.md       ← 6-page wireframe guide
+│
+├── assets/                               ← Chart PNGs (after notebook 05)
+│   ├── churn_distribution.png
+│   ├── churn_by_contract.png
+│   ├── churn_by_tenure_cohort.png
+│   ├── churn_by_internet_techsupport.png
+│   ├── churn_by_payment_method.png
+│   └── correlation_matrix.png
+│
+├── docs/
+│   ├── LEARNING_GUIDE.md                 ← This file
+│   ├── business_requirements.md          ← BRD
+│   └── Telecom_Churn_Retention_PowerBI_Complete_End_to_End_Plan.md
+│
+└── reports/
+    └── data_quality_report.md            ← Data audit findings
+```
+
+---
+
+*📅 Last Updated: August 2026 | Built by Rohit Kumar Naidu | Python → SQL → Power BI end-to-end portfolio project*

@@ -1,6 +1,27 @@
+# Python
 .venv/
 __pycache__/
-.ipynb_checkpoints/
 *.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
 *.tmp
+.DS_Store
+
+# Generated data files (run notebooks to reproduce these)
+data/staging/
+data/processed/
+
+# SQLite database (reproduced by sql/load_database.py)
+database/*.db
+
+# Generated chart assets (reproduced by notebook 05)
+assets/*.png
+assets/*.jpg
+
+# Power BI project file (created locally in Power BI Desktop)
+*.pbix
+
+# OS files
+Thumbs.db
 .DS_Store
